@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 from scipy.optimize import linear_sum_assignment
 import matplotlib.pyplot as plt
 
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]
 N_CLUSTERS = 4
 RANDOM_STATE = 0
 COLOR_MAP = {
@@ -112,16 +112,16 @@ def main():
         ax.axis("off")
     plt.suptitle("K-means Segmentation: feature comparison", fontsize=15)
     plt.tight_layout()
-    plt.savefig("comparison_3methods.png", dpi=150, bbox_inches="tight")
+    plt.savefig("../figures/comparison_3methods.png", dpi=150, bbox_inches="tight")
     plt.close()
-    print("\n[图] 三方案对比图已保存: comparison_3methods.png")
+    print("\n[图] 三方案对比图已保存: ../figures/comparison_3methods.png")
 
     # --- 差异图: 单波段 vs 全波段 哪些像素分得不一样 ---
     diff = np.zeros(shape, dtype=np.uint8)
     m = (ref > 0)
     diff[m & (aligned["Single-band"] != ref)] = 255  # 不一致处标白
-    Image.fromarray(diff).save("diff_map.png")
-    print("[图] 差异图(单波段 vs 全波段)已保存: diff_map.png")
+    Image.fromarray(diff).save("../figures/diff_map.png")
+    print("[图] 差异图(单波段 vs 全波段)已保存: ../figures/diff_map.png")
     print("    白色 = 两方案分类不同的像素, 主要落在碎冰边界。")
 
 

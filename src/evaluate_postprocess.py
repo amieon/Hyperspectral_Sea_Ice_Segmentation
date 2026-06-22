@@ -6,7 +6,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 from scipy import ndimage
 import matplotlib.pyplot as plt
 
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]
 N_CLUSTERS = 4
 RANDOM_STATE = 0
 COLOR_MAP = {
@@ -113,12 +113,12 @@ def main():
     axes[1].imshow(colorize(cleaned));   axes[1].set_title("After (morphological)"); axes[1].axis("off")
     plt.suptitle("Post-processing comparison", fontsize=14)
     plt.tight_layout()
-    plt.savefig("postprocess_compare.png", dpi=150, bbox_inches="tight")
+    plt.savefig("../figures/postprocess_compare.png", dpi=150, bbox_inches="tight")
     plt.close()
     print("\n[图] 后处理前后对比已保存: postprocess_compare.png")
 
-    Image.fromarray(colorize(cleaned)).save("final_segmentation.png")
-    print("[图] 最终分割结果已保存: final_segmentation.png")
+    Image.fromarray(colorize(cleaned)).save("../figures/final_segmentation.png")
+    print("[图] 最终分割结果已保存: ../figures/final_segmentation.png")
 
 
 if __name__ == "__main__":

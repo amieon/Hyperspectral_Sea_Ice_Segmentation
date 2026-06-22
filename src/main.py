@@ -3,10 +3,8 @@ from PIL import Image
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
-# ----------------------------------------------------------------------
-# 配置
-# ----------------------------------------------------------------------
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]  # 5 个波段
+
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]  # 5 个波段
 N_CLUSTERS = 4          # 4 个有效类别: 海水/薄冰/厚冰/陆地
 RANDOM_STATE = 0        # 固定随机种子, 保证结果可复现
 
@@ -79,8 +77,8 @@ def main():
     rgb = colorize(label_img)
 
     # 保存结果
-    Image.fromarray(rgb).save("segmentation_result.png")
-    print("[4] 分割结果已保存到 segmentation_result.png")
+    Image.fromarray(rgb).save("../figures/segmentation_result.png")
+    print("[4] 分割结果已保存到 ../figures/segmentation_result.png")
 
     # 可视化对比: 左边原始(第1波段), 右边分割结果
     fig, axes = plt.subplots(1, 2, figsize=(10, 6))
@@ -91,8 +89,8 @@ def main():
     axes[1].set_title("K-means Segmentation")
     axes[1].axis("off")
     plt.tight_layout()
-    plt.savefig("comparison.png", dpi=150, bbox_inches="tight")
-    print("[5] 对比图已保存到 comparison.png")
+    plt.savefig("../figures/comparison.png", dpi=150, bbox_inches="tight")
+    print("[5] 对比图已保存到 ../figures/comparison.png")
 
 
 if __name__ == "__main__":

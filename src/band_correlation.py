@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]
 
 
 def load_valid_pixels(band_files):
@@ -41,7 +41,7 @@ def correlation_analysis(Xv):
     return corr
 
 
-def plot_heatmap(corr, out="correlation_heatmap.png"):
+def plot_heatmap(corr, out="../figures/correlation_heatmap.png"):
     """画相关系数热力图。"""
     n = corr.shape[0]
     fig, ax = plt.subplots(figsize=(6, 5))
@@ -62,7 +62,7 @@ def plot_heatmap(corr, out="correlation_heatmap.png"):
     print(f"\n[4] 热力图已保存: {out}")
 
 
-def plot_scatter(Xv, out="band_scatter.png"):
+def plot_scatter(Xv, out="../figures/band_scatter.png"):
     """画 Band1 vs 其余波段的散点图, 直观展示'点都挤在对角线上 = 冗余'。"""
     n = Xv.shape[1]
     # 抽样 3000 个点画散点(全画太密)

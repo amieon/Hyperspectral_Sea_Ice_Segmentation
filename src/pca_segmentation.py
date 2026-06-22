@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]
 N_CLUSTERS = 4
 RANDOM_STATE = 0
 COLOR_MAP = {
@@ -41,7 +41,7 @@ def run_pca(Xv, n_components=5):
     return pca, Xp, ratio
 
 
-def plot_variance(ratio, out="pca_variance.png"):
+def plot_variance(ratio, out="../figures/pca_variance.png"):
     n = len(ratio)
     cum = np.cumsum(ratio)
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -60,7 +60,7 @@ def plot_variance(ratio, out="pca_variance.png"):
     print(f"\n[图] 方差解释率图已保存: {out}")
 
 
-def plot_pca_scatter(Xp, labels_valid, out="pca_scatter.png"):
+def plot_pca_scatter(Xp, labels_valid, out="../figures/pca_scatter.png"):
     """像素在 PC1-PC2 平面的分布, 按聚类结果上色。"""
     idx = np.random.RandomState(0).choice(Xp.shape[0], size=min(5000, Xp.shape[0]), replace=False)
     fig, ax = plt.subplots(figsize=(6, 5))
@@ -105,8 +105,8 @@ def main():
     labels[mask] = cluster_ids + 1
     label_img = labels.reshape(H, W)
     rgb = colorize(label_img)
-    Image.fromarray(rgb).save("seg_pca.png")
-    print(f"\n[图] PCA 分割结果已保存: seg_pca.png")
+    Image.fromarray(rgb).save("../figures/seg_pca.png")
+    print(f"\n[图] PCA 分割结果已保存: ../figures/seg_pca.png")
     print(f">> 仅用前 {n_keep} 个主成分 (覆盖 {np.cumsum(ratio)[:n_keep][-1]*100:.2f}% 信息) 完成分割。")
 
 
