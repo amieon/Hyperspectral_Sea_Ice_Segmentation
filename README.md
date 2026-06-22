@@ -3,9 +3,9 @@
 > 基于 K-means 聚类与 PCA 降维的高光谱海冰影像无监督分割
 > Unsupervised segmentation of hyperspectral sea-ice imagery via PCA + K-means
 
-格陵兰岛巴芬湾（Baffin Bay）海域高光谱影像的逐像素分割。在**无标注**条件下，将影像分为**海水、薄冰、厚冰、陆地**四类，并标注无效区域（“其他”）。
+格陵兰岛巴芬湾（Baffin Bay）海域高光谱影像的逐像素分割。在**无标注**条件下，将影像分为**海水、薄冰、厚冰、陆地**四类，并标注无效区域（“其他”）。完整流程涵盖波段相关性分析、PCA 降维、多种聚类方法对比、形态学与马尔可夫随机场（MRF）两种后处理。
 
-![最终分割结果](figures/final_segmentation.png)
+![最终分割结果](figures/final_mrf.png)
 
 ---
 
@@ -27,7 +27,7 @@
 
 ## 🔬 方法概述
 
-整体流程：**5 波段堆叠 → 相关性分析 → PCA 降维 → K-means 聚类 → 形态学后处理 → 无监督评估**
+整体流程：**5 波段堆叠 → 相关性分析 → PCA 降维 → 聚类方法对比 → MRF/形态学后处理 → 无监督评估**
 
 ```
 5 个波段 PNG
@@ -42,10 +42,10 @@
 PCA 降维 ── PC1 解释 99.86% 方差，5 维 → 2 维
    │
    ▼
-K-means 聚类 (K=4) ── 海水 / 薄冰 / 厚冰 / 陆地
+聚类方法对比 ── K-means / GMM / 谱聚类，K-means 最优
    │
    ▼
-形态学开/闭运算 ── 去椒盐噪声、平滑边界
+后处理 ── 形态学(碎片 -30%) 与 MRF(碎片 -57%) 对比
    │
    ▼
 无监督评估 (轮廓系数等) + 彩色分割图输出
@@ -63,12 +63,14 @@ K-means 聚类 (K=4) ── 海水 / 薄冰 / 厚冰 / 陆地
 hyperspectral-sea-ice-segmentation/
 ├── data/                       # 5 个波段输入图
 │   ├── 1-1.png ... 1-5.png
-├── src/                        # 源代码（5 个模块）
+├── src/                        # 源代码（7 个模块）
 │   ├── main.py                 # ① 基线：K-means 分割
 │   ├── band_correlation.py     # ② 波段相关性分析
 │   ├── pca_segmentation.py     # ③ PCA 降维 + 分割
-│   ├── comparison.py           # ④ 对比实验（单波段/5波段/PCA）
-│   └── evaluate_postprocess.py # ⑤ 无监督评估 + 形态学后处理
+│   ├── comparison.py           # ④ 特征对比（单波段/5波段/PCA）
+│   ├── evaluate_postprocess.py # ⑤ 无监督评估 + 形态学后处理
+│   ├── cluster_comparison.py   # ⑥ 聚类方法对比（K-means/GMM/谱聚类）
+│   └── mrf_smoothing.py        # ⑦ 马尔可夫随机场(MRF)平滑
 ├── figures/                    # 运行生成的结果图
 ├── requirements.txt
 └── README.md
@@ -92,11 +94,13 @@ pip install -r requirements.txt
 
 ```bash
 cd data
-python ../src/main.py                  # ① 基线分割 → segmentation_result.png
-python ../src/band_correlation.py      # ② 相关性分析 → correlation_heatmap.png
-python ../src/pca_segmentation.py      # ③ PCA → pca_variance.png, seg_pca.png
-python ../src/comparison.py            # ④ 对比实验 → comparison_3methods.png
-python ../src/evaluate_postprocess.py  # ⑤ 评估+后处理 → final_segmentation.png
+python ../src/main.py                  # ① 基线分割
+python ../src/band_correlation.py      # ② 相关性分析
+python ../src/pca_segmentation.py      # ③ PCA 降维
+python ../src/comparison.py            # ④ 特征对比
+python ../src/evaluate_postprocess.py  # ⑤ 评估 + 形态学
+python ../src/cluster_comparison.py    # ⑥ 聚类方法对比
+python ../src/mrf_smoothing.py         # ⑦ MRF 平滑
 ```
 
 ---
@@ -121,9 +125,9 @@ python ../src/evaluate_postprocess.py  # ⑤ 评估+后处理 → final_segmenta
 
 ![PCA 方差解释率](figures/pca_variance.png)
 
-### ④ 对比实验 (`comparison.py`)
+### ④ 特征方案对比 (`comparison.py`)
 
-对比单波段、全 5 波段、PCA 三种方案，以全波段为基准计算分割一致率：
+对比单波段、全 5 波段、PCA 三种特征方案，以全波段为基准计算分割一致率：
 
 | 方案 | 与全波段一致率 | 说明 |
 |------|:---:|------|
@@ -133,7 +137,7 @@ python ../src/evaluate_postprocess.py  # ⑤ 评估+后处理 → final_segmenta
 
 ![三方案对比](figures/comparison_3methods.png)
 
-### ⑤ 无监督评估 + 后处理 (`evaluate_postprocess.py`)
+### ⑤ 无监督评估 + 形态学后处理 (`evaluate_postprocess.py`)
 
 **无监督评估**（无需真值标签）：
 
@@ -147,6 +151,34 @@ python ../src/evaluate_postprocess.py  # ⑤ 评估+后处理 → final_segmenta
 
 ![后处理前后对比](figures/postprocess_compare.png)
 
+### ⑥ 聚类方法对比 (`cluster_comparison.py`)
+
+在 PCA 特征上对比三种无监督聚类方法。谱聚类因相似度矩阵内存开销大，采用**子采样训练 + KNN 外推**策略。
+
+| 方法 | 轮廓系数↑ | CH 指数↑ | DB 指数↓ |
+|------|:---:|:---:|:---:|
+| **K-means** | **0.736** | **313151** | **0.477** |
+| GMM | 0.326 | 34259 | 10.43 |
+| 谱聚类 (Spectral) | -0.433 | 885 | 1.94 |
+
+K-means 表现最佳：PCA 降维后各地物在主成分空间近似呈球状团簇，恰好契合 K-means 的球形簇假设。
+
+![聚类方法对比](figures/cluster_methods_compare.png)
+
+### ⑦ 马尔可夫随机场 (MRF) 平滑 (`mrf_smoothing.py`)
+
+将分割建模为能量最小化问题——数据项（光谱拟合）+ β·平滑项（邻域一致性，Potts 模型），用 ICM（迭代条件模式）求解。
+
+| 方法 | 碎片数 | 相对 raw |
+|------|:---:|:---:|
+| Raw K-means | 759 | — |
+| 形态学 | 528 | −30.4% |
+| **MRF (β=1)** | **323** | **−57.4%** |
+
+MRF 去噪效果显著优于形态学，且因同时约束光谱与空间一致性，更好地保留了碎冰区的真实边界。在 β∈[0.2, 3.0] 范围内结果稳定，表明数据光谱可分性强、算法对平滑强度鲁棒。
+
+![MRF vs 形态学](figures/mrf_vs_morph.png)
+
 ---
 
 ## 💡 关于数据维度的说明
@@ -157,19 +189,19 @@ python ../src/evaluate_postprocess.py  # ⑤ 评估+后处理 → final_segmenta
 
 ## 🛠️ 技术栈
 
-- **聚类**：scikit-learn `KMeans`
+- **聚类**：scikit-learn `KMeans` / `GaussianMixture` / `SpectralClustering`
 - **降维**：scikit-learn `PCA`
 - **评估**：Silhouette / Calinski-Harabasz / Davies-Bouldin
-- **后处理**：scipy `ndimage` 形态学开/闭运算
+- **后处理**：scipy `ndimage` 形态学开/闭运算；自实现 MRF-ICM
 - **可视化**：matplotlib
 
 ---
 
 ## 📌 可能的改进方向
 
-- 引入**马尔可夫随机场 (MRF)** 或超像素分割，更系统地利用空间邻域信息
-- 对比 **GMM（高斯混合）**、**谱聚类** 等其他无监督方法
+- 引入**超像素分割**进一步利用空间邻域信息
 - 若可获取少量标注，引入半监督方法并计算 OA / Kappa 等监督指标
+- 对 MRF 采用图割（Graph Cut）等全局优化求解器替代 ICM 局部优化
 
 ---
 
