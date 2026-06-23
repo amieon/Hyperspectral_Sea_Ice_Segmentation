@@ -96,20 +96,18 @@ pip install -r requirements.txt
 
 ### 运行
 
-所有脚本默认从当前目录读取 `1-1.png ~ 1-5.png`。请在 `data/` 目录下运行，或将脚本与数据放在同一目录：
-
 ```bash
 cd data
-python ../src/main.py                  # ① 基线分割
-python ../src/band_correlation.py      # ② 相关性分析
-python ../src/pca_segmentation.py      # ③ PCA 降维
-python ../src/comparison.py            # ④ 特征对比
-python ../src/evaluate_postprocess.py  # ⑤ 评估 + 形态学
-python ../src/cluster_comparison.py    # ⑥ 聚类方法对比
-python ../src/mrf_smoothing.py         # ⑦ MRF 平滑
-python ../src/autoencoder_clustering.py # ⑧ 自编码器 vs PCA (需 torch)
-python ../src/separability_analysis.py  # ⑨ 类别可分性分析
-python ../src/k_selection_stability.py  # ⑩ K 值选择 + 稳定性
+python ./src/main.py                  # ① 基线分割
+python ./src/band_correlation.py      # ② 相关性分析
+python ./src/pca_segmentation.py      # ③ PCA 降维
+python ./src/comparison.py            # ④ 特征对比
+python ./src/evaluate_postprocess.py  # ⑤ 评估 + 形态学
+python ./src/cluster_comparison.py    # ⑥ 聚类方法对比
+python ./src/mrf_smoothing.py         # ⑦ MRF 平滑
+python ./src/autoencoder_clustering.py # ⑧ 自编码器 vs PCA (需 torch)
+python ./src/separability_analysis.py  # ⑨ 类别可分性分析
+python ./src/k_selection_stability.py  # ⑩ K 值选择 + 稳定性
 ```
 
 ---
