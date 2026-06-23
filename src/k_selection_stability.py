@@ -6,7 +6,7 @@ from sklearn.metrics import silhouette_score
 from scipy.optimize import linear_sum_assignment
 import matplotlib.pyplot as plt
 
-BAND_FILES = [f"1-{i}.png" for i in range(1, 6)]
+BAND_FILES = [f"../data/1-{i}.png" for i in range(1, 6)]
 RANDOM_STATE = 0
 
 
@@ -102,9 +102,9 @@ def main():
     ax.set_xticks(range(10))
 
     plt.tight_layout()
-    plt.savefig("k_selection_stability.png", dpi=150, bbox_inches="tight")
+    plt.savefig("../figures/k_selection_stability.png", dpi=150, bbox_inches="tight")
     plt.close()
-    print("\n[图] K 值选择与稳定性分析图已保存: k_selection_stability.png")
+    print("\n[图] K 值选择与稳定性分析图已保存: ../figures/k_selection_stability.png")
 
 
 if __name__ == "__main__":
